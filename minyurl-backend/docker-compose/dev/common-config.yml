@@ -1,0 +1,43 @@
+services:
+  network-deploy-service:
+    networks:
+      - minyurl
+
+  db-config:
+    extends:
+      service: network-deploy-service
+    image: mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+      interval: 10s
+      start_period: 10s
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: root
+
+  base-config:
+    extends:
+      service: network-deploy-service
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+
+  configserver-config:
+    extends:
+      service: base-config
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8050/
+      SPRING_CLOUD_CONFIG_OVERRIDE_SYSTEM_PROPERTIES: "true"
+
+  eurekaserver-config:
+    extends:
+      service: configserver-config
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8050/
+      SPRING_CLOUD_CONFIG_OVERRIDE_SYSTEM_PROPERTIES: "true"
+      SPRING_EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eurekaserver:8060/eureka/

@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: redirect
+  profiles:
+    active:
+      - prod
+  config:
+    import: "optional:configserver:http://localhost:8050/"
+
+error:
+  longUrl: "http://localhost:5173/404"

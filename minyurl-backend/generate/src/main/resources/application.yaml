@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: generate
+  profiles:
+    active:
+      - prod
+  config:
+    import: "optional:configserver:http://localhost:8050/"
